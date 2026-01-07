@@ -2,7 +2,7 @@
 google-generativeai
 groq
 edge-tts
-moviepy
+moviepy==1.0.3
 sqlalchemy
 google-auth-oauthlib
 google-api-python-client
