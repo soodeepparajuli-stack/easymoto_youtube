@@ -22,7 +22,7 @@ on:
 
 jobs:
   run-daily:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     # Or ubuntu-latest if dependencies work on linux? 
     # Current dev is Windows. EdgeTTS works on Linux. MoviePy works on Linux (needs ImageMagick).
     # Let's use ubuntu-latest for cost/speed unless Windows specific paths exist.

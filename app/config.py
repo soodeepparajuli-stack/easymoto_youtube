@@ -27,5 +27,5 @@ DAILY_SHORTS_COUNT = 2
 LONG_VIDEO_SIZE = (1920, 1080)
 SHORTS_SIZE = (1080, 1920)
 FPS = 30
-DRY_RUN = True # Set to False to enable uploads
+DRY_RUN = False # Set to False to enable uploads (Default)
 
