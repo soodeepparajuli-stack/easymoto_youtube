@@ -95,6 +95,11 @@ def run_daily_job(target_type="all"):
     
     # 2. Process New Scripts
     db = SessionLocal()
+    import traceback
+    import sys
+    
+    any_failure = False
+
     try:
         # Find scripts that don't have a linked video yet
         query = db.query(Script).outerjoin(Video).filter(Video.id == None)
@@ -108,10 +113,16 @@ def run_daily_job(target_type="all"):
             try:
                 process_script(db, script)
             except Exception as e:
-                print(f"Failed to process script {script.id}: {e}")
+                print(f"CRITICAL ERROR processing script {script.id}:")
+                traceback.print_exc()
+                any_failure = True
                 
     finally:
         db.close()
+        
+    if any_failure:
+        print("Exiting with error due to script processing failures.")
+        sys.exit(1)
 
 if __name__ == "__main__":
     import argparse
