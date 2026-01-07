@@ -97,6 +97,10 @@ def run_daily_job(target_type="all"):
     db = SessionLocal()
     import traceback
     import sys
+    from app.config import OUTPUT_DIR
+    
+    # Ensure output directory exists
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
     
     any_failure = False
 
