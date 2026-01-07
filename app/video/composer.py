@@ -299,15 +299,15 @@ def get_text_style(word):
     if any(x in w_lower for x in ['warning', 'danger', 'brake', 'crash', 'fail', 'bad', 'cons', 'problem']):
         color = '#FF3333' # Red
         size_mult = 1.2
-    elif any(x in w_lower for x in ['mileage', 'efficient', 'price', 'cheap', 'good', 'pros', 'best', 'success']):
+    elif any(x in w_lower for x in ['mileage', 'efficient', 'price', 'cheap', 'good', 'pros', 'best', 'success', 'looks', 'sharp', 'stable', 'both', 'smarter']):
         color = '#39FF14' # Neon Green
         size_mult = 1.2
-    elif any(x in w_lower for x in ['engine', 'power', 'torque', 'ccs', 'hp', 'nm', 'fast', 'speed', 'cc', 'ps']):
+    elif any(x in w_lower for x in ['engine', 'power', 'torque', 'ccs', 'hp', 'nm', 'fast', 'speed', 'cc', 'ps', 'big']):
         color = 'yellow'
-        size_mult = 1.2
-    elif any(x in w_lower for x in ['feature', 'screen', 'led', 'light', 'abs', 'fi', 'modes']):
+        size_mult = 1.3
+    elif any(x in w_lower for x in ['feature', 'screen', 'led', 'light', 'abs', 'fi', 'modes', 'easymoto']):
         color = 'cyan'
-        size_mult = 1.2
+        size_mult = 1.3
 
     # 3. Subject/Object Heuristic (Capitalized words that aren't start of sentence?)
     # Hard to detect perfectly, but proper nouns often matter.
@@ -396,8 +396,9 @@ def assemble_video(script_data, media_map, audio_data, output_filename, is_short
                     else:
                         visual_clip = visual_clip.subclip(0, duration)
                 else:
-                    # Image: Load basic clip, Ken Burns applied AFTER global resize
+                    # Image: Apply Ken Burns
                     visual_clip = ImageClip(visual_path, duration=duration)
+                    visual_clip = ken_burns_effect(visual_clip)
             except Exception as e:
                 print(f"Error loading media {visual_path}: {e}, using black screen")
                 visual_clip = ImageClip(np.zeros((video_size[1], video_size[0], 3)), duration=duration)
@@ -411,12 +412,12 @@ def assemble_video(script_data, media_map, audio_data, output_filename, is_short
         
         # Scale to fill (static or dynamic)
         scale = max(target_w/w, target_h/h)
-        # Apply scaling to ALL clips (both video and image) to ensure they cover the frame
-        visual_clip = visual_clip.fx(resize, scale)
-
-        if not visual_path.endswith(('.mp4', '.mov')):
-             # Apply Ken Burns to the now-sized image
-             visual_clip = ken_burns_effect(visual_clip)
+        if not visual_path.endswith(('.mp4', '.mov')):  # It is an image with KB
+             # Images need to be scaled up to cover BEFORE cropping too!
+             # We should scale them so they cover the target area.
+             visual_clip = visual_clip.fx(resize, scale)
+        else:
+             visual_clip = visual_clip.fx(resize, scale)
 
         visual_clip = visual_clip.fx(crop, x_center=visual_clip.w/2, y_center=visual_clip.h/2, width=target_w, height=target_h)
         visual_clip = visual_clip.set_audio(audio_clip)
