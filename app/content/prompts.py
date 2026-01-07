@@ -63,18 +63,23 @@ Topic: {topic}
 {research_context}
 
 **Constraint:**
-- **Total Duration:** 30-45 seconds (Strict).
-- **Format:** High energy, fast cuts. **Detailed Fact.**
+- **Total Duration:** 20-35 seconds (IDEAL).
+- **Structure:** 3 Parts ONLY (Hook -> Main Point -> Punch Ending).
 
-**Structure (Hook -> Fact -> Payoff):**
-1.  **Hook (2s)**: `[excited]` Instant attention grabber. "Stop scrolling!"
-2.  **Main Fact/Value (25-35s)**: One detailed technical fact.
-    *   Voiceover: Punchy, fast. Use `[short pause]` for effect.
-    *   On-Screen Text: Just the KEY FACT.
-3.  **CTA (5s)**: "Follow EasyMoto!"
+**Style Rules (CRITICAL):**
+1.  **Conversational**: Talk like a friend. No "The vehicle features...". Say "This thing has..."
+2.  **Short Sentences**: 3-5 words max per phrase. Fragments are good.
+3.  **Emotion**: Use `[excited]`, `[confident]`, `[soft emphasis]` tags.
+4.  **Pauses**: Use `...` for natural pauses.
+5.  **Focus**: Explain ONE cool feature. Do NOT explain everything.
+
+**Structure:**
+1.  **Hook (0-2s)**: Grab attention. "This changed everything."
+2.  **Main Point (2-20s)**: The detailed feature. "155cc engine... Crazy smooth."
+3.  **Punch Ending (3-5s)**: Impact. "Perfect for city rides." + CTA "EasyMoto Rides."
 
 **Visuals Requirement:**
-*   Use specific motorbike parts keywords (e.g., "{topic} headlight", "{topic} exhaust sound").
+*   Use specific motorbike/car parts keywords (e.g., "{topic} headlight", "{topic} engine", "{topic} riding fast").
 
 **Output Format (JSON):**
 {{
@@ -83,14 +88,24 @@ Topic: {topic}
   "keywords": ["shorts", "bike"],
   "sections": [
     {{
-      "voiceover": "Did you know the Xpulse uses a liquid-cooled engine for better thermals?",
-      "on_screen_text": "Liquid-Cooled Engine",
-      "visual_keywords": "{topic} liquid cooled engine"
+      "voiceover": "[excited] This bike... changed everything.",
+      "on_screen_text": "Changed Everything",
+      "visual_keywords": "{topic} cinematic shot"
     }},
     {{
-      "voiceover": "This means you can ride harder for longer without overheating.",
-      "on_screen_text": "Ride Harder, Longer",
-      "visual_keywords": "{topic} riding fast"
+      "voiceover": "[confident] 155cc engine. Lightweight. Crazy smooth on turns.",
+      "on_screen_text": "155cc Engine",
+      "visual_keywords": "{topic} engine close up"
+    }},
+    {{
+      "voiceover": "[soft emphasis] Perfect for city rides...",
+      "on_screen_text": "City Perfect",
+      "visual_keywords": "{topic} city riding"
+    }},
+    {{
+        "voiceover": "[energetic] This is EasyMoto Rides.",
+        "on_screen_text": "EasyMoto Rides",
+        "visual_keywords": "{topic} logo or branding"
     }}
   ]
 }}

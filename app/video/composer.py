@@ -396,9 +396,8 @@ def assemble_video(script_data, media_map, audio_data, output_filename, is_short
                     else:
                         visual_clip = visual_clip.subclip(0, duration)
                 else:
-                    # Image: Apply Ken Burns
+                    # Image: Load basic clip, Ken Burns applied AFTER global resize
                     visual_clip = ImageClip(visual_path, duration=duration)
-                    visual_clip = ken_burns_effect(visual_clip)
             except Exception as e:
                 print(f"Error loading media {visual_path}: {e}, using black screen")
                 visual_clip = ImageClip(np.zeros((video_size[1], video_size[0], 3)), duration=duration)
@@ -412,10 +411,12 @@ def assemble_video(script_data, media_map, audio_data, output_filename, is_short
         
         # Scale to fill (static or dynamic)
         scale = max(target_w/w, target_h/h)
-        if not visual_path.endswith(('.mp4', '.mov')):  # It is an image with KB
-             pass # logic inside loop below
-        else:
-             visual_clip = visual_clip.fx(resize, scale)
+        # Apply scaling to ALL clips (both video and image) to ensure they cover the frame
+        visual_clip = visual_clip.fx(resize, scale)
+
+        if not visual_path.endswith(('.mp4', '.mov')):
+             # Apply Ken Burns to the now-sized image
+             visual_clip = ken_burns_effect(visual_clip)
 
         visual_clip = visual_clip.fx(crop, x_center=visual_clip.w/2, y_center=visual_clip.h/2, width=target_w, height=target_h)
         visual_clip = visual_clip.set_audio(audio_clip)
