@@ -1,0 +1,86 @@
+name: Daily Video Schedule
+
+on:
+  schedule:
+    # Use UTC times. NPT is UTC+5:45.
+    # 7:30 AM NPT -> 01:45 UTC (Morning Short)
+    - cron: '45 1 * * *'
+    # 4:00 PM NPT -> 10:15 UTC (Long)
+    - cron: '15 10 * * *'
+    # 7:30 PM NPT -> 13:45 UTC (Evening Short)
+    - cron: '45 13 * * *'
+  workflow_dispatch:
+    inputs:
+      type:
+        description: 'Type of video to generate (shorts/long)'
+        required: true
+        default: 'shorts'
+        type: choice
+        options:
+          - shorts
+          - long
+
+jobs:
+  run-daily:
+    runs-on: windows-latest
+    # Or ubuntu-latest if dependencies work on linux? 
+    # Current dev is Windows. EdgeTTS works on Linux. MoviePy works on Linux (needs ImageMagick).
+    # Let's use ubuntu-latest for cost/speed unless Windows specific paths exist.
+    # Paths are using os.path.join, so Linux should be fine.
+    # But font fetching? `assets/fonts`.
+    # Let's specify ubuntu-latest and ensure ImageMagick is installed.
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y imagemagick ffmpeg
+          # Fix ImageMagick policy
+          sudo sed -i 's/none/read,write/g' /etc/ImageMagick-6/policy.xml
+          pip install -r requirements.txt
+
+      - name: Determine Type (Schedule)
+        id: determine_type
+        run: |
+          # Default to payload input
+          TYPE="${{ inputs.type }}"
+          
+          # Check schedule time if triggered by schedule
+          if [ "${{ github.event_name }}" == "schedule" ]; then
+            HOUR=$(date -u +%H)
+            if [ "$HOUR" -eq 1 ]; then
+               TYPE="shorts"
+            elif [ "$HOUR" -eq 10 ]; then
+               TYPE="long"
+            elif [ "$HOUR" -eq 13 ]; then
+               TYPE="shorts"
+            fi
+          fi
+          
+          # Fallback
+          if [ -z "$TYPE" ]; then TYPE="shorts"; fi
+          
+          echo "selected_type=$TYPE" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Restore Secrets
+        run: |
+          echo "${{ secrets.YOUTUBE_CLIENT_SECRET }}" > client_secret.json
+          echo "${{ secrets.YOUTUBE_TOKEN_PICKLE_BASE64 }}" | base64 --decode > token.pickle
+        shell: bash
+
+      - name: Run Daily Job
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+        run: |
+          python run_daily.py --type ${{ steps.determine_type.outputs.selected_type }}

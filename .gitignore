@@ -1,0 +1,26 @@
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+
+# Project Output
+output/
+scripts_db.sqlite
+
+# Temporary Assets
+assets/temp_audio/
+assets/temp_media/
+*.mp3
+*.mp4
+*.log
+
+# Sensitive
+token.pickle
+client_secret.json
+
+# IDE
+.vscode/
+.idea/
