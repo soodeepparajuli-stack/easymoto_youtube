@@ -5,7 +5,7 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 from moviepy.video.io.VideoFileClip import VideoFileClip
 from moviepy.audio.io.AudioFileClip import AudioFileClip
-from moviepy.video.VideoClip import ImageClip
+from moviepy.video.VideoClip import ImageClip, ColorClip
 from moviepy.video.compositing.CompositeVideoClip import CompositeVideoClip
 from moviepy.video.compositing.concatenate import concatenate_videoclips
 from moviepy.audio.AudioClip import CompositeAudioClip
@@ -197,12 +197,18 @@ def create_typewriter_clip(text, duration, base_fontsize=90, size=(1080, 1920)):
         
     total_chars = len(char_data)
     
+    # Handle empty text case (e.g. was just a space)
+    if total_chars == 0:
+        return ColorClip(size, color=(0,0,0,0), duration=duration)
+    
     def make_image_at_t(t):
         type_duration = min(duration * 0.8, 3.0)
+        if type_duration <= 0: type_duration = 0.1 # Safety
         progress = min(1.0, t / type_duration)
         
         count = int(total_chars * progress)
-        if count < 1: count = 1
+        # Ensure we don't exceed bounds (though int truncates, so it should be safe)
+        if count > total_chars: count = total_chars
         
         img = Image.new('RGBA', size, (0,0,0,0))
         draw = ImageDraw.Draw(img)
@@ -227,7 +233,12 @@ def create_typewriter_clip(text, duration, base_fontsize=90, size=(1080, 1920)):
     def make_mask(t):
         img = make_image_at_t(t)
         # Extract alpha, normalize to 0-1 float
-        alpha = np.array(img.split()[-1]).astype(float) / 255.0
+        # Ensure alpha channel exists
+        if 'A' in img.getbands():
+            alpha = np.array(img.split()[-1]).astype(float) / 255.0
+        else:
+            # Fallback if RGB (shouldn't happen with new('RGBA'))
+            alpha = np.zeros((size[1], size[0]))
         return alpha
 
     clip = VideoClip(make_frame, duration=duration)
