@@ -128,6 +128,15 @@ if __name__ == "__main__":
     # We need to monkeypatch or set environment var?
     # Easiest: Monkeypatch since we are in main execution.
     from app import config
+    
+    print("-" * 30)
+    print(f"Running daily job (Type: {args.type})")
+    print(f"Dry Run: {config.DRY_RUN or args.dry_run}")
+    print(f"Gemini Key: {'Present' if config.GEMINI_API_KEY else 'MISSING'}")
+    print(f"Pexels Key: {'Present' if config.PEXELS_API_KEY else 'MISSING'}")
+    print(f"Groq Key: {'Present' if config.GROQ_API_KEY else 'MISSING'}")
+    print("-" * 30)
+
     if args.dry_run:
         config.DRY_RUN = True
         
